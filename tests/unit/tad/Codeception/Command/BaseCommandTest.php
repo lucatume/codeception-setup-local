@@ -2,6 +2,7 @@
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Yaml\Yaml;
+use tad\Codeception\Command\BaseCommand;
 use tad\Codeception\Command\ExtendingBaseCommand;
 
 require_once codecept_data_dir('classes/ExtendingBaseCommand.php');
@@ -33,6 +34,11 @@ class BaseCommandTest extends PHPUnit_Framework_TestCase
         $commandTester->execute(array('command' => $command->getName()));
 
         $this->assertFileNotExists($command->getLocalConfigFilePath());
+    }
+
+    protected function setUp()
+    {
+        BaseCommand::_resetConfig();
     }
 
     /**
@@ -166,6 +172,35 @@ class BaseCommandTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('value', $anotherCommandConfig['some']);
         $this->assertArrayHasKey('foo', $anotherCommandConfig);
         $this->assertEquals('here', $anotherCommandConfig['foo']);
+    }
+
+    /**
+     * @test
+     * it should read unspecified option values from config file if present
+     */
+    public function it_should_read_unspecified_option_values_from_config_file_if_present()
+    {
+        $application = new Application();
+        $application->add(new ExtendingBaseCommand());
+
+        $command = $application->find('dummyExtending');
+        $commandName = $command->getName();
+
+        $configFile = $command->getLocalConfigFilePath();
+        $existingConfig = Yaml::dump([$commandName => ['one' => 'foo', 'two' => 'baz', 'three' => 'bar']]);
+        file_put_contents($configFile, $existingConfig);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([
+            'command' => $commandName
+        ]);
+
+        unlink($configFile);
+
+        $display = $commandTester->getDisplay();
+        $this->assertContains('Option one has a value of foo', $display);
+        $this->assertContains('Option two has a value of baz', $display);
+        $this->assertContains('Option three has a value of bar', $display);
     }
 
     private function make_instance()
