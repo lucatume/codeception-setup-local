@@ -26,6 +26,9 @@ codecept search-replace foo bar some-source-file some-destination-file
 codecept setup ./setup.yml
 ```
 
+Both commands support the `--save-config` option; when used the value of any option specified to run the command will be written to the `commands-config.yaml` file.  
+On subsequent runs any option that has not a value specified for an option will default to the stored one; **this is for options (`--option-name`) values only, arguments need to be specified every time the command runs.**
+
 ### search-replace
 Simply put this command will replace every instance of a string in a file and either rewrite the result in the same file or output the modified content in a specified output file.  
 Teams sharing files that are used to set up fixtures can automate the "localization" of these fixture files with the command.  
