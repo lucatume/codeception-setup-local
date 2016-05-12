@@ -2,13 +2,12 @@
 
 namespace tad\Codeception\Command;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SearchReplace extends Command
+class SearchReplace extends BaseCommand
 {
     protected function configure()
     {
@@ -19,6 +18,8 @@ class SearchReplace extends Command
             ->addArgument('file', InputArgument::REQUIRED, 'The path to the target SQL dump file')
             ->addArgument('output', null, InputArgument::OPTIONAL, 'If set, the replaced contents will be written to this file')
             ->addOption('skip-if-missing', null, InputOption::VALUE_OPTIONAL, 'If set, the operation will not fail if source file is missing');
+
+        parent::configure();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -71,6 +72,9 @@ class SearchReplace extends Command
         }
 
         $output->writeln('<info>Modified contents written to [' . $outputFile . '].</info>');
+
+        parent::execute($input, $output);
+
         return true;
     }
 }
