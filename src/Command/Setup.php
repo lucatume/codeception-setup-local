@@ -3,7 +3,6 @@
 namespace tad\Codeception\Command;
 
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,7 +14,7 @@ use tad\Codeception\Command\SetupLocal\Instructions\ExecInstruction;
 use tad\Codeception\Command\SetupLocal\Instructions\MessageInstruction;
 use tad\Codeception\Command\SetupLocal\Instructions\VarInstruction;
 
-class Setup extends Command
+class Setup extends BaseCommand
 {
     /**
      * @var array
@@ -33,6 +32,8 @@ class Setup extends Command
         $this->setName('setup')
             ->setDescription('Sets up the local testing environment according to rules stored in a configuration file.')
             ->addArgument('config', InputArgument::OPTIONAL, 'If set, the specified configuration file will be used.', 'setup.yml');
+
+        parent::configure();
     }
 
     /**
@@ -89,6 +90,8 @@ class Setup extends Command
             }
         }
 
+        parent::execute($input, $output);
+       
         return true;
     }
 
