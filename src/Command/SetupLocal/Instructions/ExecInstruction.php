@@ -14,8 +14,18 @@ class ExecInstruction extends AbstractInstruction implements InstructionInterfac
             return $this->vars;
         }
 
-        $scriptString = is_array($this->value) ? $this->value['value'] : $this->value;
-        exec($this->replaceVarsInString($scriptString));
+        list($loopVarName, $loopCount) = $this->getLoopCount();
+
+        if ($loopCount) {
+            foreach ($loopCount as $loopVarValue) {
+                $scriptString = is_array($this->value) ? $this->value['value'] : $this->value;
+                exec($this->replaceVarsInString($scriptString, [$loopVarName => $loopVarValue]));
+            }
+        } else {
+            $scriptString = is_array($this->value) ? $this->value['value'] : $this->value;
+            exec($this->replaceVarsInString($scriptString));
+        }
+
 
         return $this->vars;
     }

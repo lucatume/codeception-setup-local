@@ -23,11 +23,25 @@ class CommandInstruction extends AbstractInstruction implements InstructionInter
             return $this->vars;
         }
 
-        $commandString = is_array($this->value) ? $this->value['value'] : $this->value;
-        $commandArgs = explode(' ', $commandString);
-        $replacedArrayArgs = array_map([$this, 'replaceVarsInString'], $commandArgs);
-        $subCommand = $this->command->getApplication()->find(reset($commandArgs));
-        $subCommand->run(new StringInput(implode(' ', $replacedArrayArgs)), $this->output);
+        list($loopVarName, $loopCount) = $this->getLoopCount();
+
+        if ($loopCount) {
+            foreach ($loopCount as $loopVarValue) {
+                $commandString = is_array($this->value) ? $this->value['value'] : $this->value;
+                $commandArgs = explode(' ', $commandString);
+                $replacedArrayArgs = array_map(function ($commandArg) use ($loopVarName, $loopVarValue) {
+                    return $this->replaceVarsInString($commandArg, [$loopVarName => $loopVarValue]);
+                }, $commandArgs);
+                $subCommand = $this->command->getApplication()->find(reset($commandArgs));
+                $subCommand->run(new StringInput(implode(' ', $replacedArrayArgs)), $this->output);
+            }
+        } else {
+            $commandString = is_array($this->value) ? $this->value['value'] : $this->value;
+            $commandArgs = explode(' ', $commandString);
+            $replacedArrayArgs = array_map([$this, 'replaceVarsInString'], $commandArgs);
+            $subCommand = $this->command->getApplication()->find(reset($commandArgs));
+            $subCommand->run(new StringInput(implode(' ', $replacedArrayArgs)), $this->output);
+        }
 
         return $this->vars;
     }

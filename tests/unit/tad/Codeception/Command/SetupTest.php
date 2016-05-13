@@ -974,6 +974,266 @@ YAML;
         $this->assertContains('Hello Luca!', $display);
     }
 
+    /**
+     * @test
+     * it should support loops in messages
+     */
+    public function it_should_support_loops_in_messages()
+    {
+        $dir = vfsStream::setup();
+        $configFile = new vfsStreamFile('conf.yaml');
+        $configFileContent = <<< YAML
+foo:
+    var:
+        name: times
+        question: times?
+        validate: int
+        default: 3
+    message:
+        if: times
+        for: time in times
+        value: loop \$time
+YAML;
+
+        $configFile->setContent($configFileContent);
+        $dir->addChild($configFile);
+
+        $application = new Application();
+        $application->add(new Setup());
+
+        $command = $application->find('setup');
+        $commandTester = new CommandTester($command);
+        $helper = $command->getHelper('question');
+        $helper->setInputStream($this->getInputStream("3\n"));
+
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'config' => $dir->url() . '/conf.yaml'
+        ]);
+
+        $display = $commandTester->getDisplay();
+        $this->assertContains('times?', $display);
+        $this->assertContains('loop 1', $display);
+        $this->assertContains('loop 2', $display);
+        $this->assertContains('loop 3', $display);
+    }
+
+    /**
+     * @test
+     * it should support looping over user defined array of strings
+     */
+    public function it_should_support_looping_over_user_defined_array_of_strings()
+    {
+        $dir = vfsStream::setup();
+        $configFile = new vfsStreamFile('conf.yaml');
+        $configFileContent = <<< YAML
+foo:
+    message:
+        for: var in foo,baz,bar
+        value: var value is \$var
+YAML;
+
+        $configFile->setContent($configFileContent);
+        $dir->addChild($configFile);
+
+        $application = new Application();
+        $application->add(new Setup());
+
+        $command = $application->find('setup');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'config' => $dir->url() . '/conf.yaml'
+        ]);
+
+        $display = $commandTester->getDisplay();
+        $this->assertContains('var value is foo', $display);
+        $this->assertContains('var value is bar', $display);
+        $this->assertContains('var value is baz', $display);
+    }
+
+    /**
+     * @test
+     * it should allow looping over user defined array of numbers
+     */
+    public function it_should_allow_looping_over_user_defined_array_of_numbers()
+    {
+        $dir = vfsStream::setup();
+        $configFile = new vfsStreamFile('conf.yaml');
+        $configFileContent = <<< YAML
+foo:
+    message:
+        for: var in 12,23,71
+        value: var value is \$var
+YAML;
+
+        $configFile->setContent($configFileContent);
+        $dir->addChild($configFile);
+
+        $application = new Application();
+        $application->add(new Setup());
+
+        $command = $application->find('setup');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'config' => $dir->url() . '/conf.yaml'
+        ]);
+
+        $display = $commandTester->getDisplay();
+        $this->assertContains('var value is 12', $display);
+        $this->assertContains('var value is 23', $display);
+        $this->assertContains('var value is 71', $display);
+    }
+
+    /**
+     * @test
+     * it should allow looping over user defined array of strings, ints and vars
+     */
+    public function it_should_allow_looping_over_user_defined_array_of_strings_ints_and_vars()
+    {
+        $dir = vfsStream::setup();
+        $configFile = new vfsStreamFile('conf.yaml');
+        $configFileContent = <<< YAML
+foo:
+    var:
+        name: varOne
+        question: var one?
+        validate: int
+        default: 3
+    message:
+        for: loopVar in 45,foo,\$varOne 
+        value: var value is \$loopVar
+YAML;
+
+        $configFile->setContent($configFileContent);
+        $dir->addChild($configFile);
+
+        $application = new Application();
+        $application->add(new Setup());
+
+        $command = $application->find('setup');
+        $commandTester = new CommandTester($command);
+        $helper = $command->getHelper('question');
+        $helper->setInputStream($this->getInputStream("12\n"));
+
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'config' => $dir->url() . '/conf.yaml'
+        ]);
+
+        $display = $commandTester->getDisplay();
+        $this->assertContains('var one?', $display);
+        $this->assertContains('var value is 45', $display);
+        $this->assertContains('var value is foo', $display);
+        $this->assertContains('var value is 12', $display);
+    }
+
+    /**
+     * @test
+     * it should support loops in commands
+     */
+    public function it_should_support_loops_in_commands()
+    {
+        $dir = vfsStream::setup();
+        $configFile = new vfsStreamFile('conf.yaml');
+        $files = [
+            codecept_root_dir('one.txt'),
+            codecept_root_dir('two.txt'),
+            codecept_root_dir('three.txt')
+        ];
+        $configFileContent = <<< YAML
+foo:
+    command:
+        for: loopVar in one,two,three 
+        value: search-replace foo bar \$loopVar.txt \$loopVar.foo.txt
+YAML;
+
+        foreach ($files as $file) {
+            file_put_contents($file, 'Foo is foo');
+        }
+
+        $configFile->setContent($configFileContent);
+        $dir->addChild($configFile);
+
+        $application = new Application();
+        $application->add(new Setup());
+        $application->add(new SearchReplace());
+
+        $command = $application->find('setup');
+        $commandTester = new CommandTester($command);
+        $helper = $command->getHelper('question');
+        $helper->setInputStream($this->getInputStream("12\n"));
+
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'config' => $dir->url() . '/conf.yaml'
+        ]);
+
+        $expectedFiles = [
+            codecept_root_dir('one.foo.txt'),
+            codecept_root_dir('two.foo.txt'),
+            codecept_root_dir('three.foo.txt')
+        ];
+
+        foreach ($expectedFiles as $expectedFile) {
+            $this->assertFileExists($expectedFile);
+            $this->assertStringEqualsFile($expectedFile, 'Foo is bar');
+        }
+
+        foreach (array_merge($files, $expectedFiles) as $file) {
+            unlink($file);
+        }
+    }
+
+    /**
+     * @test
+     * it should support loops in execs
+     */
+    public function it_should_support_loops_in_execs()
+    {
+        $dir = vfsStream::setup();
+        $configFile = new vfsStreamFile('conf.yaml');
+        $configFileContent = <<< YAML
+foo:
+    exec:
+        for: loopVar in one,two,three 
+        value: touch \$loopVar.txt
+YAML;
+
+        $configFile->setContent($configFileContent);
+        $dir->addChild($configFile);
+
+        $application = new Application();
+        $application->add(new Setup());
+
+        $command = $application->find('setup');
+        $commandTester = new CommandTester($command);
+        $helper = $command->getHelper('question');
+        $helper->setInputStream($this->getInputStream("12\n"));
+
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'config' => $dir->url() . '/conf.yaml'
+        ]);
+
+        $expectedFiles = [
+            codecept_root_dir('one.txt'),
+            codecept_root_dir('two.txt'),
+            codecept_root_dir('three.txt')
+        ];
+
+        foreach ($expectedFiles as $expectedFile) {
+            $this->assertFileExists($expectedFile);
+        }
+
+        foreach ($expectedFiles as $file) {
+            unlink($file);
+        }
+    }
+
     private function getInputStream($input)
     {
         $stream = fopen('php://memory', 'r+', false);
