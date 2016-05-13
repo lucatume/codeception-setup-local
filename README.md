@@ -98,7 +98,7 @@ The console command output will be:
 > Var value is bar
 ```
 
-#### setup instructions
+#### if setup instruction
 
 Any instruction can be conditionally executed using the simple `if` or `unless` syntax.  
 An `if` condition will make sure the instruction is executed **if** the specified condition is true; an `unless` condition will make sure the instruction is executed if the specified condition is false.  
@@ -149,6 +149,57 @@ Show:
         if: show
         value: Hello world
 ```
+
+#### for loop setup instruction
+The `message`, `command` and `exec` support the `for` argument.  
+This argument allows the instruction to be executed an arbitrary number of times looping over a user entered or hard-coded variable.  
+The setup instructions below will create 3 files in the root folder:
+
+```yaml
+foo:
+    exec:
+        for: fileName in one,two,three
+        value: touch $fileName.txt
+```
+
+the string `one,two,three` represents an array of comma separated values. The format allows for spaces around commas to improved readability; the setup file below:
+
+```yaml
+foo:
+    message:
+        for: name in John, Marc, Daniel
+        value: Hello $name!
+```
+
+will output:
+
+> Hello John!
+> Hello Marc!
+> Hello Daniel!
+
+Variables too can be used in the for loop but those must be integer values:
+
+```yaml
+foo:
+    var:
+        name: times
+        validate: int
+        default: 3
+        question: How many times to loop?
+    message:
+        if: times
+        for: i in times
+        value: Loop run $i
+```
+
+will output, presuming an user input of `4`:
+
+> Loop run 1
+> Loop run 2
+> Loop run 3
+> Loop run 4
+
+Please note that loops are human-friendly and start at `1` and not `0` as developers are used to.
 
 ##### var
 Ask the user for a variable value.  
