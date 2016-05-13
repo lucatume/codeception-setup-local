@@ -118,7 +118,7 @@ abstract class AbstractInstruction
             return [$loopVarName, range(1, intval($loopingVarValue))];
         }
 
-        return [$loopVarName, array_map([$this, 'replaceVarsInString'], explode(',', $loopFrags[2]))];
+        return [$loopVarName, array_map([$this, 'replaceVarsInString'], array_map('trim', explode(',', $loopFrags[2])))];
     }
 
     /**
