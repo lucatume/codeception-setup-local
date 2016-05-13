@@ -2,7 +2,6 @@
 
 namespace tad\Codeception\Command;
 
-
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -28,7 +27,7 @@ abstract class BaseCommand extends Command
         if ($input->hasOption($name) && !empty($inputValue)) {
             return $inputValue;
         }
-        
+
         $configValue = $this->getConfigOption($name);
 
         return empty($configValue) ? $inputValue : $configValue;
