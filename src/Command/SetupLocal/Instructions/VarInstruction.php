@@ -38,7 +38,7 @@ class VarInstruction extends AbstractInstruction implements InstructionInterface
         }
 
         if (isset($this->value['value'])) {
-            $this->vars[$this->value['name']] = $this->value['value'];
+            $this->vars[$this->value['name']] = $this->replaceVarsInString($this->value['value']);
             return $this->vars;
         }
 

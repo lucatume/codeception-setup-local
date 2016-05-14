@@ -202,11 +202,16 @@ will output, presuming an user input of `4`:
 Please note that loops are human-friendly and start at `1` and not `0` as developers are used to.
 
 ##### var
-Ask the user for a variable value.  
-Required fields for the `var` instructions are:
+Ask the user for a variable value **or** store a variable value.  
+In the first case required fields for the `var` instructions are:
 
 * `name` - the name the variable will be referenced with across the setup file
 * `question`  - the question that will prompt the user to enter a value for the variable
+
+If the purpose is to store a value for later use then required fields are:
+
+* `name` - the name the variable will be referenced with across the setup file
+* `value`  - the value that should be stored in the variable
 
 Optional arguments are:
 
