@@ -4,6 +4,7 @@ namespace tad\Codeception\Command\SetupLocal\Instructions;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 
 class VarInstruction extends AbstractInstruction implements InstructionInterface
@@ -14,12 +15,10 @@ class VarInstruction extends AbstractInstruction implements InstructionInterface
         'bool' => FILTER_VALIDATE_BOOLEAN,
         'url' => FILTER_VALIDATE_URL,
         'email' => FILTER_VALIDATE_EMAIL,
-        'yesno' => FILTER_VALIDATE_REGEXP
+        'regex' => FILTER_VALIDATE_REGEXP
     ];
 
-    protected $validationArgs = [
-        'yesno' => ['options' => ['regexp' => '/((Y|y)((E|e)(S|s))*|(N|n)(O|o)*)/']]
-    ];
+    protected $validationArgs = [];
 
     protected $normalizations = [];
 
@@ -28,6 +27,7 @@ class VarInstruction extends AbstractInstruction implements InstructionInterface
         $this->normalizations = [
             'yesno' => [$this, 'normalizeYesNo']
         ];
+
         parent::__construct($value, $vars, $input, $output, $helper);
     }
 
@@ -46,14 +46,27 @@ class VarInstruction extends AbstractInstruction implements InstructionInterface
         $default = isset($this->value['default']) ? $this->value['default'] : '';
         $defaultMessage = $default ? ' (' . $default . ')' : '';
         $questionText = $this->value['question'] . $defaultMessage;
-        $question = new Question($questionText, $default);
-        $answer = '';
-        while (true) {
-            $answer = $this->helper->ask($this->input, $this->output, $question);
-            if ($this->validate($answer)) {
-                break;
-            }
+
+        $question = null;
+
+        if (isset($this->value['validate']) && $this->value['validate'] === 'yesno') {
+            $question = new ConfirmationQuestion($questionText);
+        } else {
+            $question = new Question($questionText, $default);
         }
+
+        if (isset($this->value['validate'])) {
+            if ($this->value['validate'] === 'regex') {
+                $this->validationArgs['regex'] = $this->value['regex'];
+            }
+
+            $question->setValidator(function ($answer) {
+                return $this->validate($answer);
+            });
+
+            $question->setMaxAttempts(3);
+        }
+        $answer = $this->helper->ask($this->input, $this->output, $question);
         $this->vars[$this->value['name']] = trim($this->normalizeVar($answer));
 
         return $this->vars;
@@ -61,19 +74,23 @@ class VarInstruction extends AbstractInstruction implements InstructionInterface
 
     protected function normalizeYesNo($value)
     {
-        return preg_match('/^(Y|y)/', $value) ? 'yes' : 'no';
+        return empty($value) ? 'no' : 'yes';
     }
 
-    private function validate($answer)
+    protected function validate($answer)
     {
 
         if (!(is_array($this->value) && isset($this->value['validate']) && isset($this->validations[$this->value['validate']]))) {
-            return true;
+            return $answer;
         }
 
         $validationArg = isset($this->validationArgs[$this->value['validate']]) ? $this->validationArgs[$this->value['validate']] : null;
 
-        return filter_var($answer, $this->validations[$this->value['validate']], $validationArg);
+        if (!filter_var($answer, $this->validations[$this->value['validate']], $validationArg)) {
+            throw new RuntimeException('[' . $answer . '] is not a valid ansewer . ');
+        }
+
+        return $answer;
     }
 
     protected function normalizeVar($value)
