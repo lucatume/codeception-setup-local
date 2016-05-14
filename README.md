@@ -214,6 +214,27 @@ Optional arguments are:
 * `validate` - the type the var should be validate with; the command will keep asking for a valid value until the user enters it; supported types are `int`, `float`, `bool`, `url`, `email`, `yesno`.  
     In addition the `regexp` validation mode is available supporting default PHP validation.
 
+##### break
+If the `setup` execution should be stopped then the `break` instruction can be used.  
+The instruction has two arguments:
+
+* `if` or `unless` condition - whether the execution should be stopped or not; required
+* `value` - a message to show before the execution is stopped; optional
+
+An example usage:
+
+```yaml
+config-name:
+    var:
+        name: stop
+        question: stop?
+        validate: yesno
+    break:
+        if: stop
+        value: Stopped.
+    message: Will not see this.
+```
+
 ##### message
 Displays a message to the user.  
 Messages can be one line arguments like this:

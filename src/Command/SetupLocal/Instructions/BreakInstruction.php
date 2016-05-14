@@ -13,7 +13,7 @@ class BreakInstruction extends AbstractInstruction implements InstructionInterfa
         }
 
         if (isset($this->value['value'])) {
-            $this->output->writeln($this->value['value']);
+            $this->output->writeln('<info>' . $this->value['value'] . '</info>');
         }
 
         return false;
