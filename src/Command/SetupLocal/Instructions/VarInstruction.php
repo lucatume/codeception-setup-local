@@ -33,8 +33,17 @@ class VarInstruction extends AbstractInstruction implements InstructionInterface
 
     public function execute()
     {
-        if (!(isset($this->value['name']) && isset($this->value['question']))) {
-            throw new RuntimeException('"name" and "question" are required for the "var" instruction');
+        if (!isset($this->value['name'])) {
+            throw new RuntimeException('"name" argument is required in the "var" instruction');
+        }
+
+        if (isset($this->value['value'])) {
+            $this->vars[$this->value['name']] = $this->value['value'];
+            return $this->vars;
+        }
+
+        if (!isset($this->value['question'])) {
+            throw new RuntimeException('"question" is required in the "var" instruction');
         }
 
         $go = $this->getGo();

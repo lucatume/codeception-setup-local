@@ -1317,6 +1317,42 @@ YAML;
         $this->assertNotContains('Should not see me', $display);
     }
 
+    /**
+     * @test
+     * it should allow setting var values
+     */
+    public function it_should_allow_setting_var_values()
+    {
+        $dir = vfsStream::setup();
+        $configFile = new vfsStreamFile('conf.yaml');
+        $configFileContent = <<< YAML
+foo:
+    var:
+        name: one
+        value: 23
+    message: One is \$one
+YAML;
+
+        $configFile->setContent($configFileContent);
+        $dir->addChild($configFile);
+
+        $application = new Application();
+        $application->add(new Setup());
+
+        $command = $application->find('setup');
+        $commandTester = new CommandTester($command);
+        $helper = $command->getHelper('question');
+        $helper->setInputStream($this->getInputStream("yes\n"));
+
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'config' => $dir->url() . '/conf.yaml'
+        ]);
+
+        $display = $commandTester->getDisplay();
+        $this->assertContains('One is 23', $display);
+    }
+
     private function getInputStream($input)
     {
         $stream = fopen('php://memory', 'r+', false);
