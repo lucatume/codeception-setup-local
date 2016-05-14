@@ -211,7 +211,8 @@ Required fields for the `var` instructions are:
 Optional arguments are:
 
 * `default` - the var default value should the user not provide any value pressing Enter without typing anything
-* `validate` - the type the var should be validate with; the command will keep asking for a valid value until the user enters it; supported types are `int`, `float`, `bool`, `url`, `email`, `yesno`.
+* `validate` - the type the var should be validate with; the command will keep asking for a valid value until the user enters it; supported types are `int`, `float`, `bool`, `url`, `email`, `yesno`.  
+    In addition the `regexp` validation mode is available supporting default PHP validation.
 
 ##### message
 Displays a message to the user.  
