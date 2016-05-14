@@ -1234,6 +1234,46 @@ YAML;
         }
     }
 
+    /**
+     * @test
+     * it should support regex validation of vars
+     */
+    public function it_should_support_regex_validation_of_vars()
+    {
+        $dir = vfsStream::setup();
+        $configFile = new vfsStreamFile('conf.yaml');
+        $configFileContent = <<< YAML
+foo:
+    var:
+        name: varOne
+        question: var one?
+        validate: regexp
+        regexp: /^foo/
+    message:
+        value: varOne value is \$varOne
+YAML;
+
+        $configFile->setContent($configFileContent);
+        $dir->addChild($configFile);
+
+        $application = new Application();
+        $application->add(new Setup());
+
+        $command = $application->find('setup');
+        $commandTester = new CommandTester($command);
+        $helper = $command->getHelper('question');
+        $helper->setInputStream($this->getInputStream("12\nbar\nfoobar"));
+
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'config' => $dir->url() . '/conf.yaml'
+        ]);
+
+        $display = $commandTester->getDisplay();
+        $this->assertContains('var one?', $display);
+        $this->assertContains('varOne value is foobar', $display);
+    }
+
     private function getInputStream($input)
     {
         $stream = fopen('php://memory', 'r+', false);

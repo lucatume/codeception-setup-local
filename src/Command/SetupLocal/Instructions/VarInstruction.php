@@ -15,7 +15,7 @@ class VarInstruction extends AbstractInstruction implements InstructionInterface
         'bool' => FILTER_VALIDATE_BOOLEAN,
         'url' => FILTER_VALIDATE_URL,
         'email' => FILTER_VALIDATE_EMAIL,
-        'regex' => FILTER_VALIDATE_REGEXP
+        'regexp' => FILTER_VALIDATE_REGEXP
     ];
 
     protected $validationArgs = [];
@@ -56,8 +56,8 @@ class VarInstruction extends AbstractInstruction implements InstructionInterface
         }
 
         if (isset($this->value['validate'])) {
-            if ($this->value['validate'] === 'regex') {
-                $this->validationArgs['regex'] = $this->value['regex'];
+            if ($this->value['validate'] === 'regexp') {
+                $this->validationArgs['regexp'] = ['options' => ['regexp' => $this->value['regexp']]];
             }
 
             $question->setValidator(function ($answer) {
@@ -87,7 +87,7 @@ class VarInstruction extends AbstractInstruction implements InstructionInterface
         $validationArg = isset($this->validationArgs[$this->value['validate']]) ? $this->validationArgs[$this->value['validate']] : null;
 
         if (!filter_var($answer, $this->validations[$this->value['validate']], $validationArg)) {
-            throw new RuntimeException('[' . $answer . '] is not a valid ansewer . ');
+            throw new RuntimeException('[' . $answer . '] is not a valid answer .');
         }
 
         return $answer;
