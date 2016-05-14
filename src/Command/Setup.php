@@ -9,6 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 use tad\Codeception\Command\Helpers\YamlHasher;
 use tad\Codeception\Command\Helpers\YamlHasherInterface;
+use tad\Codeception\Command\SetupLocal\Instructions\BreakInstruction;
 use tad\Codeception\Command\SetupLocal\Instructions\CommandInstruction;
 use tad\Codeception\Command\SetupLocal\Instructions\ExecInstruction;
 use tad\Codeception\Command\SetupLocal\Instructions\MessageInstruction;
@@ -80,18 +81,27 @@ class Setup extends BaseCommand
                     case 'exec':
                         $instruction = new ExecInstruction($value, $this->vars, $input, $output, $helper);
                         break;
+                    case 'break':
+                        $instruction = new BreakInstruction($value, $this->vars, $input, $output, $helper);
+                        break;
                     default:
                         break;
                 }
 
                 if (!empty($instruction)) {
-                    $this->vars = $instruction->execute();
+                    $executionResult = $instruction->execute();
+
+                    if (false === $executionResult) {
+                        break;
+                    }
+
+                    $this->vars = $executionResult;
                 }
             }
         }
 
         parent::execute($input, $output);
-       
+
         return true;
     }
 

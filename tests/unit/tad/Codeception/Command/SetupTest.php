@@ -1274,6 +1274,49 @@ YAML;
         $this->assertContains('varOne value is foobar', $display);
     }
 
+    /**
+     * @test
+     * it should support the break instruction
+     */
+    public function it_should_support_the_break_instruction()
+    {
+
+        $dir = vfsStream::setup();
+        $configFile = new vfsStreamFile('conf.yaml');
+        $configFileContent = <<< YAML
+foo:
+    var:
+        name: stop
+        question: stop?
+        validate: yesno
+    break:
+        if: stop
+        value: Stopped.
+    message: Should not see me.
+YAML;
+
+        $configFile->setContent($configFileContent);
+        $dir->addChild($configFile);
+
+        $application = new Application();
+        $application->add(new Setup());
+
+        $command = $application->find('setup');
+        $commandTester = new CommandTester($command);
+        $helper = $command->getHelper('question');
+        $helper->setInputStream($this->getInputStream("yes\n"));
+
+        $commandTester->execute([
+            'command' => $command->getName(),
+            'config' => $dir->url() . '/conf.yaml'
+        ]);
+
+        $display = $commandTester->getDisplay();
+        $this->assertContains('stop?', $display);
+        $this->assertContains('Stopped', $display);
+        $this->assertNotContains('Should not see me', $display);
+    }
+
     private function getInputStream($input)
     {
         $stream = fopen('php://memory', 'r+', false);
