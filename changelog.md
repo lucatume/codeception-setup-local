@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - support for `regexp` validation in `var` instruction to `setup` command
 - support for the `break` instruction in `setup` command
 - support for hard-coded `values` in the `setup` command
+- the `setup:scaffold` command
 
 ## [0.0.3] - 2016-05-13
 - loop support on `message`, `command` and `exec` instructions in `setup` command
