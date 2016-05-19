@@ -340,3 +340,12 @@ config-block:
         question: filename?
     exec: touch $fileName.txt 
 ```
+
+### setup:scaffold
+While a `setup` command consumable file can be easily created the `setup:scaffold` command was born to give a quick starting point.  
+Beint project-agnostic it is meant to be used after the local testing environment has been set up.  
+The command allows for some options:
+
+* `--destination` - by default the command will write a setup file to the `setup.yml` file in the project root folder: relative paths will be resolved from the project root folder. 
+* `--skip-suites` - by default the command will generate a distribution version of each suite configuration file (`*.suite.yml`) if not existing already: use this option to skip it.
+* `--yes` - answer `y` to all confirmation requests the command requires.
