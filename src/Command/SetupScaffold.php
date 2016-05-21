@@ -73,6 +73,7 @@ class SetupScaffold extends Command
         $this->writeSetupFile($setupFilePath, $setupFileLines);
 
         $output->writeln('<info>Setup file written to [' . $setupFilePath . ']</info>');
+        $output->writeln('<info>You can run the setup command immediately using the `wpcept setup` command.</info>');
     }
 
     /**
@@ -101,12 +102,12 @@ class SetupScaffold extends Command
 #   wpcept setup --section=acceptance
 # 
 #  Happy testing!
-
+#
 # ================================================
-
+#
 # Need to modify/update the setup instructions below?
 # Refer to the `setup` command instructions at https://github.com/lucatume/codeception-setup-local#setup
-
+#
 # ================================================
 YAML;
     }
