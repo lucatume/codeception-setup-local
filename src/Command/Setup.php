@@ -17,6 +17,8 @@ use tad\Codeception\Command\SetupLocal\Instructions\VarInstruction;
 
 class Setup extends BaseCommand
 {
+	const SLUG = 'util:setup';
+
     /**
      * @var array
      */

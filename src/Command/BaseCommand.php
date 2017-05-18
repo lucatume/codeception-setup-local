@@ -2,16 +2,16 @@
 
 namespace tad\Codeception\Command;
 
+use Codeception\CustomCommandInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class BaseCommand extends Command
+abstract class BaseCommand extends Command implements CustomCommandInterface
 {
-
-    /**
+	/**
      * @var bool|array
      */
     protected static $allConfig = false;
@@ -115,4 +115,13 @@ abstract class BaseCommand extends Command
 # But you can modify it by hand with some care.
 YAML;
     }
+
+	/**
+	 * returns the name of the command
+	 *
+	 * @return string
+	 */
+	public static function getCommandName(){
+		return static::SLUG;
+	}
 }

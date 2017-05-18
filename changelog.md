@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [1.0.1] - 2017-05-18
+### Fixed
+- an argument validation issue in the `setup` command
+
 ## [1.0.0] - 2016-05-19
 ### Added
 - support for `regexp` validation in `var` instruction to `setup` command
@@ -22,7 +26,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - initial commit
 
-[unreleased]: https://github.com/lucatume/codeception-setup-local/compare/1.0.0...HEAD
+[unreleased]: https://github.com/lucatume/codeception-setup-local/compare/1.0.1...HEAD
+[1.0.1]: https://github.com/lucatume/codeception-setup-local/compare/1.0.1...1.0.0
 [1.0.0]: https://github.com/lucatume/codeception-setup-local/compare/1.0.0...0.0.3
 [0.0.3]: https://github.com/lucatume/codeception-setup-local/compare/0.0.3...0.0.2
 [0.0.2]: https://github.com/lucatume/codeception-setup-local/compare/0.0.2...0.0.1

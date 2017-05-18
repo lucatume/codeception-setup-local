@@ -9,6 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SearchReplace extends BaseCommand
 {
+	const SLUG = "db:search-replace";
+
     protected function configure()
     {
         $this->setName('search-replace')

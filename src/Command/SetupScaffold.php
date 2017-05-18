@@ -15,6 +15,8 @@ use tad\WPBrowser\Filesystem\Filesystem;
 
 class SetupScaffold extends Command
 {
+	const SLUG = 'util:setup-scaffold';
+
     /**
      * @var Filesystem
      */

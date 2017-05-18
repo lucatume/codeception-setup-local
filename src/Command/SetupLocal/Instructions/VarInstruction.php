@@ -1,6 +1,7 @@
 <?php
 namespace tad\Codeception\Command\SetupLocal\Instructions;
 
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -95,8 +96,11 @@ class VarInstruction extends AbstractInstruction implements InstructionInterface
 
         $validationArg = isset($this->validationArgs[$this->value['validate']]) ? $this->validationArgs[$this->value['validate']] : null;
 
-        if (!filter_var($answer, $this->validations[$this->value['validate']], $validationArg)) {
-            throw new RuntimeException('[' . $answer . '] is not a valid answer .');
+	    $valid = ! empty($validationArg) ?
+		    filter_var($answer, $this->validations[$this->value['validate']], $validationArg) : filter_var($answer, $this->validations[$this->value['validate']]);
+
+	    if (! $valid) {
+            throw new InvalidArgumentException('[' . $answer . '] is not a valid answer .');
         }
 
         return $answer;
