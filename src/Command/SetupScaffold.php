@@ -4,6 +4,7 @@ namespace tad\Codeception\Command;
 
 
 use Codeception\Configuration;
+use Codeception\CustomCommandInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Yaml\Yaml;
 use tad\WPBrowser\Filesystem\Filesystem;
 
-class SetupScaffold extends Command
+class SetupScaffold extends Command implements CustomCommandInterface
 {
 	const SLUG = 'util:setup-scaffold';
 
@@ -241,4 +242,14 @@ YAML;
         $file = $destination ? $destination : codecept_root_dir('setup.yml');
         return $file;
     }
+
+	/**
+	 * returns the name of the command
+	 *
+	 * @return string
+	 */
+	public static function getCommandName()
+	{
+		return 'setup:scaffold';
+	}
 }
