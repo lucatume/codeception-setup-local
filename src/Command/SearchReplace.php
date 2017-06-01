@@ -2,52 +2,62 @@
 
 namespace tad\Codeception\Command;
 
+use Codeception\CustomCommandInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SearchReplace extends BaseCommand
-{
-	const SLUG = "db:search-replace";
+class SearchReplace extends BaseCommand implements CustomCommandInterface {
 
-    protected function configure()
-    {
+    /**
+     * returns the name of the command
+     *
+     * @return string
+     */
+    public static function getCommandName() {
+        return "db:search-replace";
+    }
+
+    protected function configure() {
         $this->setName('search-replace')
-            ->setDescription('Search and replace a string in a database dump')
-            ->addArgument('old', InputArgument::REQUIRED, 'A string to search for in the dump file')
-            ->addArgument('new', InputArgument::REQUIRED, 'Replace instances of the `old` string with this new string')
-            ->addArgument('file', InputArgument::REQUIRED, 'The path to the target SQL dump file')
-            ->addArgument('output', null, InputArgument::OPTIONAL, 'If set, the replaced contents will be written to this file')
-            ->addOption('skip-if-missing', null, InputOption::VALUE_OPTIONAL, 'If set, the operation will not fail if source file is missing');
+             ->setDescription('Search and replace a string in a database dump')
+             ->addArgument('old', InputArgument::REQUIRED, 'A string to search for in the dump file')
+             ->addArgument('new', InputArgument::REQUIRED, 'Replace instances of the `old` string with this new string')
+             ->addArgument('file', InputArgument::REQUIRED, 'The path to the target SQL dump file')
+             ->addArgument('output', null, InputArgument::OPTIONAL, 'If set, the replaced contents will be written to this file')
+             ->addOption('skip-if-missing', null, InputOption::VALUE_OPTIONAL, 'If set, the operation will not fail if source file is missing');
 
         parent::configure();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $file = $input->getArgument('file');
         $skipIfMissing = $input->getOption('skip-if-missing');
 
         $sourceExists = file_exists($file);
 
-        if ($skipIfMissing && !$sourceExists) {
+        if ($skipIfMissing && ! $sourceExists) {
             $output->writeln('<info>Skipped as source file [' . $file . '] is missing.</info>');
+
             return true;
         }
 
-        if (!$sourceExists) {
+        if ( ! $sourceExists) {
             $output->writeln('<error>File [' . $file . '] does not exist.</error>');
+
             return false;
         }
 
-        if (!is_readable($file)) {
+        if ( ! is_readable($file)) {
             $output->writeln('<error>File [' . $file . '] is not readable.</error>');
+
             return false;
         }
 
-        if (!is_writeable($file)) {
+        if ( ! is_writeable($file)) {
             $output->writeln('<error>File [' . $file . '] is not writeable.</error>');
+
             return false;
         }
 
@@ -65,11 +75,13 @@ class SearchReplace extends BaseCommand
             $exit = file_put_contents($outputFile, $out);
         } catch (\Exception $e) {
             $output->writeln('<error>Could not write to [' . $outputFile . '].</error>');
+
             return false;
         }
 
         if (empty($exit)) {
             $output->writeln('<error>Could not write to [' . $outputFile . '].</error>');
+
             return false;
         }
 

@@ -8,4 +8,5 @@ composer.phar
 # composer.lock
 
 
-tests/_output/*
+tests/_output/*.idea/codeception-setup-local.iml
+.idea

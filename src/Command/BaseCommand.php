@@ -9,9 +9,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class BaseCommand extends Command implements CustomCommandInterface
+abstract class BaseCommand extends Command
 {
-	/**
+    /**
      * @var bool|array
      */
     protected static $allConfig = false;
@@ -115,13 +115,4 @@ abstract class BaseCommand extends Command implements CustomCommandInterface
 # But you can modify it by hand with some care.
 YAML;
     }
-
-	/**
-	 * returns the name of the command
-	 *
-	 * @return string
-	 */
-	public static function getCommandName(){
-		return static::SLUG;
-	}
 }

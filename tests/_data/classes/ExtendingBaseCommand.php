@@ -3,14 +3,13 @@
 namespace tad\Codeception\Command;
 
 
+use Codeception\CustomCommandInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ExtendingBaseCommand extends BaseCommand
+class ExtendingBaseCommand extends BaseCommand implements CustomCommandInterface
 {
-
-
     protected function configure()
     {
         $this->setName('dummyExtending');
@@ -38,4 +37,12 @@ class ExtendingBaseCommand extends BaseCommand
         parent::execute($input, $output);
     }
 
+    /**
+     * returns the name of the command
+     *
+     * @return string
+     */
+    public static function getCommandName() {
+        return 'test:extending';
+    }
 }

@@ -3,6 +3,7 @@
 namespace tad\Codeception\Command;
 
 
+use Codeception\CustomCommandInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,9 +16,7 @@ use tad\Codeception\Command\SetupLocal\Instructions\ExecInstruction;
 use tad\Codeception\Command\SetupLocal\Instructions\MessageInstruction;
 use tad\Codeception\Command\SetupLocal\Instructions\VarInstruction;
 
-class Setup extends BaseCommand
-{
-	const SLUG = 'util:setup';
+class Setup extends BaseCommand implements CustomCommandInterface {
 
     /**
      * @var array
@@ -29,33 +28,47 @@ class Setup extends BaseCommand
      */
     protected $yamlHasher;
 
-    protected function configure()
-    {
+    public function __construct($name = 'setup:local', YamlHasherInterface $yamlHasher = null) {
+        parent::__construct($name);
+        $this->yamlHasher = $yamlHasher ? $yamlHasher : new YamlHasher();
+    }
+
+    /**
+     * returns the name of the command
+     *
+     * @return string
+     */
+    public static function getCommandName() {
+        return 'util:setup';
+    }
+
+    protected function configure() {
         $this->vars = [];
         $this->setName('setup')
-            ->setDescription('Sets up the local testing environment according to rules stored in a configuration file.')
-            ->addArgument('config', InputArgument::OPTIONAL, 'If set, the specified configuration file will be used.', 'setup.yml');
+             ->setDescription('Sets up the local testing environment according to rules stored in a configuration file.')
+             ->addArgument('config', InputArgument::OPTIONAL, 'If set, the specified configuration file will be used.', 'setup.yml');
 
         parent::configure();
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return bool
      * @throws \Symfony\Component\Console\Exception\ExceptionInterface
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $configFile = $input->getArgument('config');
-        if (!empty($configFile) && !file_exists($configFile)) {
+        if ( ! empty($configFile) && ! file_exists($configFile)) {
             $configFileFallbackCandidate = getcwd() . DIRECTORY_SEPARATOR . str_replace('.yml', '', $configFile) . '.yml';
             $configFile = file_exists($configFileFallbackCandidate) ? $configFileFallbackCandidate : false;
         }
         $configFile = empty($configFile) ? getcwd() . DIRECTORY_SEPARATOR . 'setup.yml' : $configFile;
 
-        if (!file_exists($configFile)) {
+        if ( ! file_exists($configFile)) {
             $output->writeln('<error>Configuration file [' . $configFile . '] does not exist.</error>');
+
             return false;
         }
 
@@ -90,7 +103,7 @@ class Setup extends BaseCommand
                         break;
                 }
 
-                if (!empty($instruction)) {
+                if ( ! empty($instruction)) {
                     $executionResult = $instruction->execute();
 
                     if (false === $executionResult) {
@@ -105,11 +118,5 @@ class Setup extends BaseCommand
         parent::execute($input, $output);
 
         return true;
-    }
-
-    public function __construct($name = 'setup:local', YamlHasherInterface $yamlHasher = null)
-    {
-        parent::__construct($name);
-        $this->yamlHasher = $yamlHasher ? $yamlHasher : new YamlHasher();
     }
 }
